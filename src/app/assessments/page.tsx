@@ -10,11 +10,14 @@ import {
   AlertCircle,
   ArrowRight,
   BookOpen,
+  Sparkles,
 } from 'lucide-react';
 import { AppStore } from '@/lib/store/appStore';
 import { Assessment, LearnerSubmission, Subject } from '@/types';
 import { useAuth } from '@/components/auth/AuthContext';
-import { formatDate } from '@/lib/utils';
+import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 export default function AssessmentsPage() {
   const { user } = useAuth();
@@ -31,30 +34,40 @@ export default function AssessmentsPage() {
   }, [user]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Header */}
-      <div className="border-b border-slate-200 pb-6">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-semibold mb-2">
-          <ClipboardCheck className="w-3.5 h-3.5" />
-          <span>Formative & Summative Testing</span>
+    <div className="space-y-8">
+      {/* Page Header */}
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#e8f5ec] text-[#1b382b] rounded-full text-xs font-semibold mb-2">
+            <ClipboardCheck className="w-3.5 h-3.5 text-[#246043]" />
+            <span>Formative & Summative Testing</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            Quiz & Assessments
+          </h1>
+          <p className="text-sm text-slate-500 mt-1 max-w-2xl">
+            Test your understanding across CAPS modules. Your marks are automatically logged to your student analytics.
+          </p>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-          Assessments & Exercises
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-500 mt-1">
-          Complete CAPS curriculum assessments to test your understanding, identify learning gaps, and track academic marks.
-        </p>
+        <div className="flex items-center gap-3">
+          <Link href="/library">
+            <Button variant="outline" className="rounded-full border-slate-200 text-xs h-10 px-5 gap-2">
+              <BookOpen className="w-4 h-4 text-[#1b382b]" />
+              Review Textbooks
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Assessment Cards */}
       {assessments.length === 0 ? (
-        <div className="py-16 text-center bg-white rounded-2xl border border-slate-200">
+        <Card className="py-16 text-center border-slate-100 shadow-xs">
           <ClipboardCheck className="w-12 h-12 text-slate-300 mx-auto mb-3" />
           <h3 className="text-base font-bold text-slate-800">No Assessments Available</h3>
           <p className="text-xs text-slate-500 mt-1">
-            Your subject teachers have not published any assessments for this term yet.
+            Assessments will appear here once published for your registered subjects.
           </p>
-        </div>
+        </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {assessments.map((asmt) => {
@@ -63,16 +76,16 @@ export default function AssessmentsPage() {
             const isCompleted = !!submission;
 
             return (
-              <div
+              <Card
                 key={asmt.id}
-                className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between"
+                className="hover:shadow-md transition-shadow flex flex-col justify-between overflow-hidden border-slate-100"
               >
-                <div>
+                <div className="p-6">
                   <div className="flex items-start justify-between gap-2 mb-3">
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-100">
+                    <Badge variant="secondary" className="bg-[#e8f5ec] text-[#1b382b] text-[10px] font-bold uppercase tracking-wider">
                       {asmt.assessment_type.toUpperCase()}
-                    </span>
-                    <span className="text-xs text-slate-400 font-medium">
+                    </Badge>
+                    <span className="text-xs text-slate-400 font-semibold">
                       {asmt.total_marks} Marks
                     </span>
                   </div>
@@ -81,21 +94,21 @@ export default function AssessmentsPage() {
                     {asmt.title}
                   </h3>
 
-                  <p className="text-xs text-slate-500 line-clamp-2 mb-4 leading-relaxed">
+                  <p className="text-xs text-slate-500 line-clamp-2 mb-5 leading-relaxed">
                     {asmt.description}
                   </p>
 
-                  <div className="space-y-1.5 py-3 border-y border-slate-100 text-[11px] text-slate-500 mb-4">
+                  <div className="space-y-2 py-3 border-y border-slate-100 text-xs text-slate-500">
                     <div className="flex justify-between">
                       <span className="text-slate-400">Subject:</span>
-                      <span className="font-semibold text-slate-800">
-                        {subject?.name || 'CAPS'} ({subject?.code || ''})
+                      <span className="font-bold text-slate-800">
+                        {subject?.name || 'CAPS Subject'}
                       </span>
                     </div>
                     {asmt.time_limit_minutes && (
                       <div className="flex justify-between">
                         <span className="text-slate-400">Time Limit:</span>
-                        <span className="text-slate-800">{asmt.time_limit_minutes} minutes</span>
+                        <span className="text-slate-700 font-medium">{asmt.time_limit_minutes} mins</span>
                       </div>
                     )}
                     <div className="flex justify-between">
@@ -106,26 +119,27 @@ export default function AssessmentsPage() {
                           <span>Scored {submission.percentage}%</span>
                         </span>
                       ) : (
-                        <span className="font-semibold text-blue-600">Ready to attempt</span>
+                        <span className="font-semibold text-amber-600">Ready to attempt</span>
                       )}
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-2">
-                  <Link
-                    href={`/assessments/${asmt.id}`}
-                    className={`w-full py-2.5 px-4 rounded-xl text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 shadow-xs ${
-                      isCompleted
-                        ? 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200'
-                        : 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                    }`}
-                  >
-                    <span>{isCompleted ? 'Review Answers & Marks' : 'Start Assessment'}</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                <div className="p-6 pt-0">
+                  <Link href={`/assessments/${asmt.id}`} className="block">
+                    <Button
+                      className={`w-full rounded-2xl text-xs font-bold h-11 gap-2 shadow-xs ${
+                        isCompleted
+                          ? 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200'
+                          : 'bg-[#1b382b] hover:bg-[#142a20] text-white'
+                      }`}
+                    >
+                      <span>{isCompleted ? 'Review Submission' : 'Start Assessment'}</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
                   </Link>
                 </div>
-              </div>
+              </Card>
             );
           })}
         </div>
@@ -133,4 +147,3 @@ export default function AssessmentsPage() {
     </div>
   );
 }
-

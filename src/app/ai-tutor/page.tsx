@@ -17,6 +17,9 @@ import {
 import { AppStore } from '@/lib/store/appStore';
 import { Subject, AIStudyInteraction } from '@/types';
 import { useAuth } from '@/components/auth/AuthContext';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 function AITutorContent() {
   const { user } = useAuth();
@@ -98,7 +101,7 @@ function AITutorContent() {
         ...prev,
         {
           sender: 'ai',
-          text: 'The AI learning assistant could not be reached. Ensure Ollama is running or verify network status.',
+          text: 'The AI study assistant could not be reached. Please verify your connection or local inference server.',
         },
       ]);
     } finally {
@@ -114,31 +117,31 @@ function AITutorContent() {
   ];
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-6">
+    <div className="space-y-6">
+      {/* Header Banner */}
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-semibold mb-2">
-            <Sparkles className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#e8f5ec] text-[#1b382b] rounded-full text-xs font-semibold mb-2">
+            <Sparkles className="w-3.5 h-3.5 text-[#246043]" />
             <span>Curriculum Grounded AI Tutor</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             AI Study Assistant
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+          <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl">
             Ask questions, clarify textbook concepts, and receive structured, step-by-step CAPS explanations.
           </p>
         </div>
 
-        {/* Subject Picker */}
+        {/* Subject Focus Selector */}
         <div className="w-full sm:w-64">
-          <label className="text-[11px] font-semibold text-slate-500 block mb-1">
+          <label className="text-[11px] font-bold text-slate-600 block mb-1">
             Focus Subject:
           </label>
           <select
             value={selectedSubjectId}
             onChange={(e) => setSelectedSubjectId(e.target.value)}
-            className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 font-medium"
+            className="w-full px-3.5 py-2.5 text-xs rounded-2xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#1b382b] font-semibold text-slate-800"
           >
             {subjects.map((s) => (
               <option key={s.id} value={s.id}>
@@ -150,13 +153,13 @@ function AITutorContent() {
       </div>
 
       {/* Main Chat Container */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col h-[650px] overflow-hidden">
+      <Card className="flex flex-col h-[650px] overflow-hidden border-slate-100 shadow-xs">
         {/* Messages Scroll Area */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
           {chatHistory.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-4">
-              <div className="w-14 h-14 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center">
-                <Bot className="w-7 h-7" />
+              <div className="w-16 h-16 rounded-3xl bg-[#e8f5ec] text-[#1b382b] flex items-center justify-center">
+                <Bot className="w-8 h-8 text-[#246043]" />
               </div>
               <div>
                 <h3 className="text-base font-bold text-slate-800">
@@ -168,16 +171,16 @@ function AITutorContent() {
               </div>
 
               {/* Sample prompts grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-xl w-full text-left pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl w-full text-left pt-2">
                 {samplePrompts.map((sp, idx) => (
                   <button
                     key={idx}
                     type="button"
                     onClick={() => handleSend(sp)}
-                    className="p-3 rounded-xl border border-slate-200 hover:border-purple-300 hover:bg-purple-50/50 text-xs text-slate-700 transition-colors flex items-center justify-between"
+                    className="p-3.5 rounded-2xl border border-slate-100 bg-[#f8faf9] hover:border-[#1b382b] hover:bg-white text-xs text-slate-700 font-medium transition-all flex items-center justify-between group shadow-2xs"
                   >
                     <span>{sp}</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-purple-500 shrink-0 ml-1" />
+                    <ArrowRight className="w-3.5 h-3.5 text-[#246043] shrink-0 ml-2 group-hover:translate-x-0.5 transition-transform" />
                   </button>
                 ))}
               </div>
@@ -189,25 +192,25 @@ function AITutorContent() {
                 className={`flex gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {msg.sender === 'ai' && (
-                  <div className="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center shrink-0 mt-1">
-                    <Sparkles className="w-4 h-4" />
+                  <div className="w-8 h-8 rounded-full bg-[#1b382b] text-white flex items-center justify-center shrink-0 mt-1 shadow-xs">
+                    <Sparkles className="w-4 h-4 text-emerald-300" />
                   </div>
                 )}
 
                 <div
-                  className={`max-w-2xl rounded-2xl p-4 text-xs sm:text-sm leading-relaxed ${
+                  className={`max-w-2xl rounded-3xl p-5 text-xs sm:text-sm leading-relaxed ${
                     msg.sender === 'user'
-                      ? 'bg-blue-600 text-white font-medium'
-                      : 'bg-slate-50 border border-slate-200 text-slate-800'
+                      ? 'bg-[#1b382b] text-white font-medium shadow-xs'
+                      : 'bg-[#f1f5f2] border border-slate-200/60 text-slate-800'
                   }`}
                 >
                   <div className="whitespace-pre-wrap">{msg.text}</div>
 
                   {/* Key Takeaways */}
                   {msg.takeaways && msg.takeaways.length > 0 && (
-                    <div className="mt-4 p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-900 text-xs">
-                      <span className="font-bold block mb-1">Key Syllabus Takeaways:</span>
-                      <ul className="list-disc list-inside space-y-0.5">
+                    <div className="mt-4 p-4 bg-[#e8f5ec] rounded-2xl border border-emerald-200/80 text-emerald-950 text-xs">
+                      <span className="font-bold block mb-1.5 text-[#1b382b]">Key Syllabus Takeaways:</span>
+                      <ul className="list-disc list-inside space-y-1">
                         {msg.takeaways.map((item, i) => (
                           <li key={i}>{item}</li>
                         ))}
@@ -217,16 +220,16 @@ function AITutorContent() {
 
                   {/* Suggested questions */}
                   {msg.suggestedQuestions && msg.suggestedQuestions.length > 0 && (
-                    <div className="mt-3 pt-3 border-t border-slate-200/60 space-y-1">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                        Follow-up suggestions:
+                    <div className="mt-4 pt-3 border-t border-slate-200/60 space-y-1.5">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                        Anticipated Follow-Up Questions:
                       </span>
                       {msg.suggestedQuestions.map((sq, i) => (
                         <button
                           key={i}
                           type="button"
                           onClick={() => handleSend(sq)}
-                          className="text-[11px] text-purple-700 hover:text-purple-900 block font-medium underline"
+                          className="text-[11px] text-[#246043] hover:text-[#1b382b] block font-semibold hover:underline"
                         >
                           → {sq}
                         </button>
@@ -242,7 +245,7 @@ function AITutorContent() {
                 </div>
 
                 {msg.sender === 'user' && (
-                  <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0 mt-1">
+                  <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center shrink-0 mt-1 font-bold text-xs">
                     <UserIcon className="w-4 h-4" />
                   </div>
                 )}
@@ -251,17 +254,15 @@ function AITutorContent() {
           )}
 
           {loading && (
-            <div className="flex gap-3 items-center text-xs text-slate-400">
-              <div className="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center shrink-0">
-                <Loader2 className="w-4 h-4 animate-spin" />
-              </div>
-              <span>Searching curriculum documents and preparing step-by-step explanation...</span>
+            <div className="flex gap-3 items-center text-xs text-slate-500 bg-[#f1f5f2] p-4 rounded-2xl w-fit">
+              <Loader2 className="w-4 h-4 animate-spin text-[#1b382b]" />
+              <span>Consulting CAPS curriculum materials and formulating answer...</span>
             </div>
           )}
         </div>
 
         {/* Input Bar */}
-        <div className="p-4 border-t border-slate-200 bg-white">
+        <div className="p-4 border-t border-slate-100 bg-white">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -274,19 +275,19 @@ function AITutorContent() {
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder={`Ask a question about ${activeSubject?.name || 'this subject'}...`}
-              className="flex-1 px-4 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="flex-1 px-5 py-3 text-xs sm:text-sm rounded-full border border-slate-200 bg-[#f8faf9] focus:outline-none focus:ring-2 focus:ring-[#1b382b] focus:bg-white transition-colors"
             />
-            <button
+            <Button
               type="submit"
               disabled={loading || !prompt.trim()}
-              className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-40 shadow-xs shrink-0"
+              className="rounded-full bg-[#1b382b] hover:bg-[#142a20] text-white text-xs font-bold px-6 h-11 gap-1.5 shadow-xs shrink-0"
             >
               <span>Ask</span>
               <Send className="w-3.5 h-3.5" />
-            </button>
+            </Button>
           </form>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
@@ -296,7 +297,7 @@ export default function AITutorPage() {
     <Suspense
       fallback={
         <div className="min-h-[60vh] flex items-center justify-center">
-          <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+          <Loader2 className="w-8 h-8 animate-spin text-[#1b382b]" />
         </div>
       }
     >

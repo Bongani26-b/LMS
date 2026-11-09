@@ -4,17 +4,21 @@
 
 :root {
   /* Sage & Forest Green Academic Theme (Matching Reference UI) */
-  --background: 140 18% 96%; /* #f2f6f3 */
-  --foreground: 155 30% 12%; /* #14241b */
+  --background: 140 18% 96%;
+  /* #f2f6f3 */
+  --foreground: 155 30% 12%;
+  /* #14241b */
   --card: 0 0% 100%;
   --card-foreground: 155 30% 12%;
   --popover: 0 0% 100%;
   --popover-foreground: 155 30% 12%;
-  
+
   /* Primary Green Palette */
-  --primary: 152 46% 26%; /* #246043 Forest Green */
+  --primary: 152 46% 26%;
+  /* #246043 Forest Green */
   --primary-foreground: 0 0% 100%;
-  --secondary: 142 28% 92%; /* #e1ede4 Soft Mint */
+  --secondary: 142 28% 92%;
+  /* #e1ede4 Soft Mint */
   --secondary-foreground: 152 46% 20%;
   --muted: 140 14% 91%;
   --muted-foreground: 150 10% 45%;
@@ -40,13 +44,16 @@ body {
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 9999px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
@@ -56,10 +63,12 @@ body {
   background-color: #fef08a;
   border-bottom: 2px solid #eab308;
 }
+
 .highlight-green {
   background-color: #bbf7d0;
   border-bottom: 2px solid #22c55e;
 }
+
 .highlight-purple {
   background-color: #e9d5ff;
   border-bottom: 2px solid #a855f7;
