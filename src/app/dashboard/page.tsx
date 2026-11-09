@@ -15,6 +15,7 @@ import {
   Calendar,
   Award,
   AlertCircle,
+  ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthContext';
 import { AppStore } from '@/lib/store/appStore';
@@ -300,9 +301,12 @@ export default function LearnerDashboardPage() {
                         <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
                           {subj.code}
                         </span>
-                        <h3 className="text-base font-bold text-slate-900 mt-0.5 leading-snug">
-                          {subj.name}
-                        </h3>
+                        <Link href={`/subjects/${subj.id}`} className="group">
+                          <h3 className="text-base font-bold text-slate-900 mt-0.5 leading-snug group-hover:text-blue-600 transition-colors flex items-center gap-1.5">
+                            <span>{subj.name}</span>
+                            <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </h3>
+                        </Link>
                       </div>
                       <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100">
                         {subj.category.split(',')[0]}

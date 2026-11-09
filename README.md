@@ -125,3 +125,4 @@ Use the **Role Persona Pill** in the top navigation bar to test all user roles w
 - 👩‍🏫 **Teacher**: Manage class rosters, upload new textbooks/guides, and review student assessment submissions.
 - 🏛️ **School Admin**: Configure school offerings, review academic schedules, and verify staff.
 - ⚙️ **Platform Admin**: Inspect system health, approve new schools, and configure AI model parameters.
+

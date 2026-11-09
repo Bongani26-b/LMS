@@ -41,6 +41,7 @@ export function Navbar() {
         return [
           { href: '/teacher', label: 'Teacher Studio', icon: LayoutDashboard },
           { href: '/teacher/upload', label: 'Upload Materials', icon: UploadCloud },
+          { href: '/teacher/assessments/new', label: 'Create Assessment', icon: ClipboardCheck },
           { href: '/teacher/submissions', label: 'Markbook & Submissions', icon: ClipboardCheck },
           { href: '/library', label: 'Library Resources', icon: BookOpen },
         ];
@@ -181,19 +182,19 @@ export function Navbar() {
             </div>
 
             {/* Profile Avatar & School Info */}
-            <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
-              <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+            <Link href="/profile" className="flex items-center gap-2 pl-2 border-l border-slate-200 group">
+              <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-xs group-hover:scale-105 transition-transform">
                 {user?.full_name?.charAt(0) || 'U'}
               </div>
               <div className="hidden xl:block text-left">
-                <div className="text-xs font-semibold text-slate-900 leading-tight">
+                <div className="text-xs font-semibold text-slate-900 leading-tight group-hover:text-blue-600 transition-colors">
                   {user?.full_name || 'Logged In User'}
                 </div>
                 <div className="text-[10px] text-slate-500 truncate max-w-[130px]">
                   {user?.school_name || 'Pretoria Boys High'}
                 </div>
               </div>
-            </div>
+            </Link>
           </div>
         </div>
       </div>
