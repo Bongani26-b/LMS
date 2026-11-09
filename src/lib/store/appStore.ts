@@ -15,6 +15,8 @@ import {
   Grade,
   Topic,
   AISettings,
+  CommunityChannel,
+  CommunityMessage,
 } from '@/types';
 import {
   INITIAL_GRADES,
@@ -36,6 +38,7 @@ const STORAGE_KEYS = {
   AI_SETTINGS: 'dss_lms_ai_settings',
   SCHOOLS: 'dss_lms_schools',
   ASSESSMENTS: 'dss_lms_assessments',
+  COMMUNITY_MESSAGES: 'dss_lms_community_messages',
 };
 
 // Default AI configuration
@@ -398,5 +401,239 @@ export class AppStore {
     setStoredItem(STORAGE_KEYS.AI_SETTINGS, updated);
     return updated;
   }
+
+  // ==========================================
+  // Community Channels & Messages
+  // ==========================================
+  static getCommunityChannels(): CommunityChannel[] {
+    return [
+      {
+        id: 'general',
+        name: 'General Student Lounge',
+        description: 'Connect with secondary students, share study tips, motivation, and school life discussions.',
+        iconName: 'MessageSquare',
+        category: 'general',
+        memberCount: 1420,
+      },
+      {
+        id: 'mathematics',
+        name: 'Mathematics Help',
+        subjectCode: 'MATH',
+        subjectName: 'Mathematics',
+        description: 'Algebra, trinomial factorisation, functions, geometry, trigonometry, and exam problems.',
+        iconName: 'Calculator',
+        category: 'subject',
+        memberCount: 890,
+      },
+      {
+        id: 'physical-sciences',
+        name: 'Physical Sciences Help',
+        subjectCode: 'PHSC',
+        subjectName: 'Physical Sciences',
+        description: 'Chemical bonding, stoichiometry, Newton’s laws, electric circuits, and science experiments.',
+        iconName: 'Atom',
+        category: 'subject',
+        memberCount: 740,
+      },
+      {
+        id: 'life-sciences',
+        name: 'Life Sciences & Biology',
+        subjectCode: 'LFSC',
+        subjectName: 'Life Sciences',
+        description: 'DNA replication, transcription & translation, genetics, human reproduction, and meiosis.',
+        iconName: 'Dna',
+        category: 'subject',
+        memberCount: 680,
+      },
+      {
+        id: 'natural-sciences',
+        name: 'Natural Sciences (Grades 8–9)',
+        subjectCode: 'NSCI',
+        subjectName: 'Natural Sciences',
+        description: 'Photosynthesis, respiration, atomic structure, and energy transfers for Senior Phase.',
+        iconName: 'FlaskConical',
+        category: 'subject',
+        memberCount: 520,
+      },
+      {
+        id: 'english-hl',
+        name: 'English & Languages',
+        subjectCode: 'ENHL',
+        subjectName: 'English Home Language',
+        description: 'Essay writing structures, prescribed poetry, comprehension skills, and literature analysis.',
+        iconName: 'BookMarked',
+        category: 'subject',
+        memberCount: 460,
+      },
+      {
+        id: 'accounting',
+        name: 'Accounting & Commerce',
+        subjectCode: 'ACCT',
+        subjectName: 'Accounting',
+        description: 'Ledgers, journals, income statements, balance sheets, and financial calculations.',
+        iconName: 'Landmark',
+        category: 'subject',
+        memberCount: 310,
+      },
+    ];
+  }
+
+  static getCommunityMessages(channelId?: string): CommunityMessage[] {
+    const all = getStoredItem<CommunityMessage[]>(STORAGE_KEYS.COMMUNITY_MESSAGES, this.getDefaultCommunityMessages());
+    if (!channelId || channelId === 'all') {
+      return all;
+    }
+    return all.filter((m) => m.channelId === channelId);
+  }
+
+  static sendCommunityMessage(msg: {
+    channelId: string;
+    authorId: string;
+    authorName: string;
+    authorGrade: string;
+    authorAvatar?: string;
+    content: string;
+    isHelpRequest?: boolean;
+    topicTag?: string;
+  }): CommunityMessage {
+    const all = getStoredItem<CommunityMessage[]>(STORAGE_KEYS.COMMUNITY_MESSAGES, this.getDefaultCommunityMessages());
+    const newMessage: CommunityMessage = {
+      ...msg,
+      id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      createdAt: new Date().toISOString(),
+      likes: 0,
+      likedBy: [],
+    };
+
+    all.push(newMessage);
+    setStoredItem(STORAGE_KEYS.COMMUNITY_MESSAGES, all);
+    return newMessage;
+  }
+
+  static toggleCommunityMessageLike(messageId: string, userId: string): CommunityMessage | null {
+    const all = getStoredItem<CommunityMessage[]>(STORAGE_KEYS.COMMUNITY_MESSAGES, this.getDefaultCommunityMessages());
+    const target = all.find((m) => m.id === messageId);
+    if (!target) return null;
+
+    target.likedBy = target.likedBy || [];
+    const alreadyLiked = target.likedBy.includes(userId);
+
+    if (alreadyLiked) {
+      target.likedBy = target.likedBy.filter((id) => id !== userId);
+      target.likes = Math.max(0, (target.likes || 1) - 1);
+    } else {
+      target.likedBy.push(userId);
+      target.likes = (target.likes || 0) + 1;
+    }
+
+    setStoredItem(STORAGE_KEYS.COMMUNITY_MESSAGES, all);
+    return target;
+  }
+
+  private static getDefaultCommunityMessages(): CommunityMessage[] {
+    return [
+      {
+        id: 'msg-seed-01',
+        channelId: 'mathematics',
+        authorId: 'usr-sipho',
+        authorName: 'Sipho Ndlovu',
+        authorGrade: 'Grade 10',
+        content: 'Hey everyone, I need quick help with trinomial factoring: when factorising x² - 5x - 24 = 0, how do you quickly find the pair of factors that add up to -5?',
+        createdAt: new Date(Date.now() - 3600000 * 3).toISOString(),
+        likes: 4,
+        likedBy: ['usr-learner-001'],
+        isHelpRequest: true,
+        topicTag: 'Trinomial Factorisation',
+      },
+      {
+        id: 'msg-seed-02',
+        channelId: 'mathematics',
+        authorId: 'usr-anika',
+        authorName: 'Anika Patel',
+        authorGrade: 'Grade 10',
+        content: '@Sipho Ndlovu: List the factor pairs of 24 with opposite signs: (1, 24), (2, 12), (3, 8), (4, 6). Notice that -8 + 3 = -5! So the factors are (x - 8)(x + 3) = 0, giving x = 8 or x = -3.',
+        createdAt: new Date(Date.now() - 3600000 * 2.5).toISOString(),
+        likes: 7,
+        likedBy: [],
+        topicTag: 'Worked Solution',
+      },
+      {
+        id: 'msg-seed-03',
+        channelId: 'physical-sciences',
+        authorId: 'usr-lerato',
+        authorName: 'Lerato Khumalo',
+        authorGrade: 'Grade 10',
+        content: 'Is an electronegativity difference of 1.2 considered polar covalent or ionic in CAPS exams? My notes say polar covalent but I want to be 100% sure before tomorrow’s test.',
+        createdAt: new Date(Date.now() - 3600000 * 5).toISOString(),
+        likes: 5,
+        likedBy: [],
+        isHelpRequest: true,
+        topicTag: 'Chemical Bonding',
+      },
+      {
+        id: 'msg-seed-04',
+        channelId: 'physical-sciences',
+        authorId: 'usr-kyle',
+        authorName: 'Kyle Van Zyl',
+        authorGrade: 'Grade 10',
+        content: 'Yes @Lerato Khumalo! In CAPS Physical Sciences, non-polar is ΔEN < 0.4, polar covalent is 0.4 ≤ ΔEN < 2.1, and ionic is ΔEN ≥ 2.1. So 1.2 is definitely polar covalent!',
+        createdAt: new Date(Date.now() - 3600000 * 4.2).toISOString(),
+        likes: 9,
+        likedBy: ['usr-learner-001'],
+        topicTag: 'CAPS Electronegativity Rule',
+      },
+      {
+        id: 'msg-seed-05',
+        channelId: 'life-sciences',
+        authorId: 'usr-zola',
+        authorName: 'Zola Mthembu',
+        authorGrade: 'Grade 12',
+        content: 'Can someone summarize the 3 main steps of translation at the ribosome? Trying to memorize for Life Sciences Paper 2.',
+        createdAt: new Date(Date.now() - 3600000 * 7).toISOString(),
+        likes: 6,
+        likedBy: [],
+        isHelpRequest: true,
+        topicTag: 'Protein Synthesis',
+      },
+      {
+        id: 'msg-seed-06',
+        channelId: 'life-sciences',
+        authorId: 'usr-thabo',
+        authorName: 'Thabo Nkosi',
+        authorGrade: 'Grade 10',
+        content: '1. mRNA attaches to ribosome. 2. tRNA brings specific amino acids matching the mRNA codon with its anticodon. 3. Peptide bonds join amino acids into a polypeptide chain until a stop codon is reached!',
+        createdAt: new Date(Date.now() - 3600000 * 6.1).toISOString(),
+        likes: 12,
+        likedBy: [],
+        topicTag: 'Study Summary',
+      },
+      {
+        id: 'msg-seed-07',
+        channelId: 'general',
+        authorId: 'usr-kgothatso',
+        authorName: 'Kgothatso Moloi',
+        authorGrade: 'Grade 11',
+        content: 'Welcome everyone to the student community! How is everyone tackling their study schedule for Term 1? Remember to take 10 minute breaks every 50 minutes to stay fresh.',
+        createdAt: new Date(Date.now() - 3600000 * 8).toISOString(),
+        likes: 15,
+        likedBy: ['usr-learner-001'],
+        topicTag: 'Study Tips',
+      },
+      {
+        id: 'msg-seed-08',
+        channelId: 'natural-sciences',
+        authorId: 'usr-ayanda',
+        authorName: 'Ayanda Sithole',
+        authorGrade: 'Grade 8',
+        content: 'Why do plants turn iodine solution dark blue-black during the photosynthesis starch test? Does anyone have the explanation?',
+        createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
+        likes: 3,
+        likedBy: [],
+        isHelpRequest: true,
+        topicTag: 'Photosynthesis Starch Test',
+      },
+    ];
+  }
 }
+
 

@@ -61,3 +61,4 @@ export const CAPS_VIDEO_LESSONS: VideoLesson[] = [
     linkedResourceId: 'res-nsci8-tb',
   },
 ];
+

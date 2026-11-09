@@ -108,11 +108,10 @@ export default function VideoLessonsPage() {
                     <div
                       key={video.id}
                       onClick={() => setSelectedVideo(video)}
-                      className={`p-3 rounded-2xl border cursor-pointer transition-all flex items-start gap-3 ${
-                        isCurrent
+                      className={`p-3 rounded-2xl border cursor-pointer transition-all flex items-start gap-3 ${isCurrent
                           ? 'border-[#246043] bg-[#e8f5ec]/50 ring-1 ring-[#246043]'
                           : 'border-slate-100 hover:border-slate-200 bg-slate-50/50 hover:bg-slate-50'
-                      }`}
+                        }`}
                     >
                       <div className="w-9 h-9 rounded-xl bg-[#1b382b] text-white flex items-center justify-center shrink-0 mt-0.5">
                         <Play className="w-4 h-4 fill-white" />

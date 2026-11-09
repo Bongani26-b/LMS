@@ -274,3 +274,30 @@ export interface AISettings {
   rag_enabled: boolean;
 }
 
+export interface CommunityChannel {
+  id: string;
+  name: string;
+  subjectCode?: string;
+  subjectName?: string;
+  description: string;
+  iconName: string;
+  category: 'general' | 'subject';
+  memberCount: number;
+}
+
+export interface CommunityMessage {
+  id: string;
+  channelId: string;
+  authorId: string;
+  authorName: string;
+  authorGrade: string;
+  authorAvatar?: string;
+  content: string;
+  createdAt: string;
+  likes: number;
+  likedBy: string[];
+  isHelpRequest?: boolean;
+  topicTag?: string;
+}
+
+

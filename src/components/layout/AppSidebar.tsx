@@ -15,6 +15,7 @@ import {
   PlaySquare,
   LogOut,
   CheckCircle2,
+  MessagesSquare,
 } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import { Badge } from '@/components/ui/badge';
@@ -26,6 +27,7 @@ export function AppSidebar() {
   // Pure student navigation links - no teacher/mentor switcher
   const navItems = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/community', label: 'Student Community', icon: MessagesSquare },
     { href: '/library', label: 'Textbooks & Materials', icon: BookOpen },
     { href: '/reader', label: 'Study Reader & AI', icon: FileText },
     { href: '/videos', label: 'Video Lessons', icon: PlaySquare },
