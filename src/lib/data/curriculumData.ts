@@ -322,6 +322,16 @@ export const INITIAL_SUBJECTS: Subject[] = [
 ];
 
 export const INITIAL_TOPICS: Topic[] = [
+  // Grade 8 Natural Sciences
+  {
+    id: 'topic-nsci8-01',
+    subject_id: 'subj-nsci-8',
+    title: 'Life and Living: Photosynthesis and Cellular Respiration',
+    description: 'The process of radiant energy conversion into glucose by chlorophyll, carbon dioxide and water intake, oxygen release, and energy release in respiration.',
+    sequence_order: 1,
+    estimated_hours: 8,
+  },
+
   // Grade 10 Physical Sciences
   {
     id: 'topic-phsc10-01',
