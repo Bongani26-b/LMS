@@ -130,6 +130,53 @@ Know the difference between DNA and RNA:
         'What is a codon and anticodon?',
         'What happens when a mutation occurs during DNA replication?'
       );
+    } else if (
+      combinedText.includes('photosynthesis') ||
+      combinedText.includes('chlorophyll') ||
+      combinedText.includes('chloroplast') ||
+      combinedText.includes('radiant energy')
+    ) {
+      topicExplanation = `### Understanding Photosynthesis (CAPS ${gradeName || 'Grade 8'} ${subjectName || 'Natural Sciences'})
+
+**1. What is Photosynthesis in Simple Words?**
+Photosynthesis is the biological process green plants use to make their own food (glucose sugar) using sunlight. 
+Because plants make their own food, they are called **producers** (autotrophs).
+
+**2. Breaking it down into 4 simple steps:**
+- **Step 1: Trapping Sunlight:** Green leaves have specialized plant organelles called **chloroplasts** containing a green pigment called **chlorophyll**. Chlorophyll absorbs radiant energy from the sun.
+- **Step 2: Absorbing Raw Ingredients:**
+  - **Water ($H_2O$):** Absorbed from the soil by root hair cells and transported up the stem via xylem vessels.
+  - **Carbon Dioxide ($CO_2$):** Absorbed from the air through microscopic pores on leaves called **stomata**.
+- **Step 3: The Chemical Reaction:**
+  Inside the chloroplasts, solar energy transforms carbon dioxide and water into glucose and oxygen gas:
+  $$\\text{Carbon Dioxide} + \\text{Water} + \\xrightarrow{\\text{Light + Chlorophyll}} \\text{Glucose (Sugar)} + \\text{Oxygen}$$
+  $$6CO_2 + 6H_2O \\xrightarrow{\\text{Light}} C_6H_{12}O_6 + 6O_2$$
+- **Step 4: Energy Storage:** The plant converts glucose into **starch** for storage and releases oxygen into the atmosphere for humans and animals to breathe.
+
+**3. Student Memory Analogy:**
+Think of a plant leaf as a tiny solar-powered kitchen:
+- **Chef:** Chlorophyll
+- **Oven:** Solar radiant energy
+- **Ingredients:** Water from the tap + Carbon dioxide from the air
+- **Finished Meal:** Glucose energy cookies
+- **Exhaust vent:** Oxygen released out the window!
+
+**4. CAPS Grade 8 Exam Tip:**
+In tests, you will often be asked about the **iodine test for starch**:
+- Drops of brown iodine solution turn **blue-black** in the presence of starch, proving photosynthesis occurred!`;
+
+      keyTakeaways.push(
+        'Photosynthesis converts radiant solar energy into chemical potential energy (glucose).',
+        'Requirements: Carbon dioxide, water, sunlight, and chlorophyll.',
+        'Products: Glucose (food) and oxygen gas (by-product).',
+        'Iodine solution turns blue-black when testing leaves for stored starch.'
+      );
+
+      suggestedQuestions.push(
+        'How does light intensity affect the rate of photosynthesis?',
+        'What is the difference between photosynthesis and cellular respiration?',
+        'How do plants absorb water from the soil?'
+      );
     } else {
       // General tailored response
       topicExplanation = `### CAPS Learning Assistant Explanation (${gradeName || 'Secondary'} • ${subjectName || 'Curriculum'})

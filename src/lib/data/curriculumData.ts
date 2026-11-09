@@ -413,6 +413,68 @@ export const INITIAL_TOPICS: Topic[] = [
 
 export const INITIAL_RESOURCES: EducationalResource[] = [
   {
+    id: 'res-nsci8-tb',
+    title: 'Grade 8 Natural Sciences: Photosynthesis and Cellular Respiration',
+    description: 'CAPS Senior Phase module detailing solar radiant energy capture, the chloroplast food-making process, word and chemical equations, and plant energy storage.',
+    file_url: '/materials/grade8_natural_sciences_photosynthesis.txt',
+    storage_path: 'textbooks/gr8_nsci_photosynthesis.pdf',
+    file_size_bytes: 2150000,
+    file_type: 'pdf',
+    category: 'textbook',
+    grade_id: 'grade-8',
+    subject_id: 'subj-nsci-8',
+    topic_id: 'topic-nsci8-01',
+    school_id: null,
+    uploaded_by: 'system-curriculum-author',
+    uploaded_by_name: 'DBE Senior Phase Natural Sciences Panel',
+    is_published: true,
+    copyright_notice: 'Approved CAPS Senior Phase Educational Resource.',
+    permissions: 'public_to_grade',
+    download_count: 188,
+    view_count: 532,
+    pages_count: 3,
+    created_at: '2026-01-08T08:00:00Z',
+    updated_at: '2026-01-08T08:00:00Z',
+    extracted_text: `CAPS GRADE 8 NATURAL SCIENCES: LIFE AND LIVING
+
+PAGE 1: PHOTOSYNTHESIS FUNDAMENTALS
+All living organisms require energy to survive, grow, and reproduce. The primary source of energy for almost all life on Earth is the sun.
+Green plants are remarkable because they are able to capture this radiant light energy and transform it into chemical potential energy stored in food molecules.
+This food-making process is called photosynthesis (from photo = light, and synthesis = putting together).
+
+Requirements for Photosynthesis:
+1. Chlorophyll: The green pigment found inside specialized plant cell organelles called chloroplasts. Chlorophyll traps light energy from the sun.
+2. Sunlight: Provides the radiant energy required to drive the chemical reaction.
+3. Water: Absorbed by plant roots from the soil and transported up through the stem to the leaves.
+4. Carbon Dioxide: Absorbed from the surrounding atmosphere through tiny pores in the leaves called stomata.
+
+PAGE 2: THE CHEMICAL REACTION & PRODUCTS
+Inside the chloroplasts of leaf cells, water and carbon dioxide are rearranged using the trapped solar energy to produce glucose sugar and oxygen gas.
+
+Word Equation:
+Carbon Dioxide + Water + Light energy (with Chlorophyll) -> Glucose (Sugar) + Oxygen
+
+Chemical Equation:
+6CO2 + 6H2O + Radiant energy -> C6H12O6 + 6O2
+
+Products of Photosynthesis:
+1. Glucose: A simple carbohydrate sugar. Plants use glucose immediately for cellular growth and repair, or link glucose units together into complex starch molecules for storage in roots, stems, fruits, and seeds.
+2. Oxygen: Released as a gaseous by-product into the atmosphere through the stomata, which animals and humans breathe.
+
+PAGE 3: TESTING FOR STARCH AND CELLULAR RESPIRATION
+Investigation: The Iodine Starch Test
+To verify that photosynthesis has taken place in a leaf, scientists test for the presence of stored starch.
+Steps:
+1. Place a green leaf in boiling water for 1 minute to break down cell membranes.
+2. Boil the leaf in methylated spirits/ethanol using a water bath to extract green chlorophyll (the leaf turns pale white).
+3. Soften the leaf in warm water, spread it on a petri dish, and add drops of brown iodine solution.
+Result: If starch is present, the iodine solution changes colour from brown to dark blue-black.
+
+Cellular Respiration Comparison:
+While photosynthesis builds glucose and releases oxygen in chloroplasts during daylight, cellular respiration occurs continuously in all plant and animal cells inside mitochondria:
+Glucose + Oxygen -> Carbon Dioxide + Water + Usable Energy (ATP).`,
+  },
+  {
     id: 'res-phsc10-tb',
     title: 'Grade 10 Physical Sciences: Chemical Systems & Matter',
     description: 'Official CAPS-aligned textbook chapter covering atomic structure, periodic trends, chemical bonding, and the kinetic theory of matter.',
