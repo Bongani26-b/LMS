@@ -2,17 +2,19 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
   Check,
   ChevronRight,
   ChevronLeft,
-  School as SchoolIcon,
+  GraduationCap,
   BookOpen,
   User,
-  GraduationCap,
-  ShieldCheck,
+  School as SchoolIcon,
+  Sparkles,
   AlertCircle,
-  PlusCircle,
+  ArrowRight,
+  ShieldCheck,
 } from 'lucide-react';
 import { AppStore } from '@/lib/store/appStore';
 import { School, Grade, Subject, UserProfile } from '@/types';
@@ -22,24 +24,23 @@ export default function OnboardingPage() {
   const router = useRouter();
   const { setUser } = useAuth();
 
-  // Wizard Steps: 1: Account, 2: School, 3: Grade, 4: Subjects, 5: Confirmation
+  // Wizard Steps:
+  // 1: Name & Account (First Name, Last Name, Email, Password, School)
+  // 2: Grade Selection (Grade 8, 9, 10, 11, 12)
+  // 3: Subject Selection (Select the subjects you want to study)
+  // 4: Confirmation & Enter Dashboard
   const [step, setStep] = useState<number>(1);
 
   // Form State
-  const [fullName, setFullName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [selectedSchoolId, setSelectedSchoolId] = useState('');
-  const [selectedGradeId, setSelectedGradeId] = useState('');
+  const [selectedSchoolId, setSelectedSchoolId] = useState('sch-001');
+  const [selectedGradeId, setSelectedGradeId] = useState('grade-10');
   const [selectedSubjectIds, setSelectedSubjectIds] = useState<string[]>([]);
 
-  // School Registration Modal / New School inputs
-  const [showAddSchool, setShowAddSchool] = useState(false);
-  const [newSchoolName, setNewSchoolName] = useState('');
-  const [newSchoolProvince, setNewSchoolProvince] = useState('Gauteng');
-  const [newSchoolEmail, setNewSchoolEmail] = useState('');
-
-  // Data loaded from database/store
+  // Loaded database items
   const [schools, setSchools] = useState<School[]>([]);
   const [grades, setGrades] = useState<Grade[]>([]);
   const [availableSubjects, setAvailableSubjects] = useState<Subject[]>([]);
@@ -51,36 +52,17 @@ export default function OnboardingPage() {
     setGrades(AppStore.getGrades());
   }, []);
 
-  // When grade changes, load corresponding subjects
+  // Update subjects dynamically when grade changes
   useEffect(() => {
     if (selectedGradeId) {
-      const subjects = AppStore.getSubjectsByGrade(selectedGradeId);
-      setAvailableSubjects(subjects);
-      // Reset selected subjects if grade changes
-      setSelectedSubjectIds([]);
-    } else {
-      setAvailableSubjects([]);
+      const subs = AppStore.getSubjectsByGrade(selectedGradeId);
+      setAvailableSubjects(subs);
+      // Pre-select first 4 subjects by default so learner has a great starting set
+      if (subs.length > 0) {
+        setSelectedSubjectIds(subs.slice(0, Math.min(4, subs.length)).map((s) => s.id));
+      }
     }
   }, [selectedGradeId]);
-
-  // Handle adding new school
-  const handleAddNewSchool = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newSchoolName || !newSchoolEmail) return;
-
-    const created = AppStore.addSchool({
-      name: newSchoolName,
-      province: newSchoolProvince,
-      status: 'pending_approval',
-      contact_email: newSchoolEmail,
-    });
-
-    setSchools(AppStore.getSchools());
-    setSelectedSchoolId(created.id);
-    setShowAddSchool(false);
-    setNewSchoolName('');
-    setNewSchoolEmail('');
-  };
 
   const handleToggleSubject = (subjectId: string) => {
     if (selectedSubjectIds.includes(subjectId)) {
@@ -93,31 +75,26 @@ export default function OnboardingPage() {
   const validateStep = (currentStep: number): boolean => {
     setFormError(null);
     if (currentStep === 1) {
-      if (!fullName.trim()) {
-        setFormError('Please enter your full legal name as it appears on your birth certificate or ID.');
+      if (!firstName.trim()) {
+        setFormError('Please enter your first name.');
+        return false;
+      }
+      if (!lastName.trim()) {
+        setFormError('Please enter your last name.');
         return false;
       }
       if (!email.trim() || !email.includes('@')) {
         setFormError('Please enter a valid school or personal email address.');
         return false;
       }
-      if (password.length < 6) {
-        setFormError('Password must be at least 6 characters long.');
-        return false;
-      }
     } else if (currentStep === 2) {
-      if (!selectedSchoolId) {
-        setFormError('Please select your registered secondary school or submit a new school request.');
+      if (!selectedGradeId) {
+        setFormError('Please select the grade you are studying (Grades 8 to 12).');
         return false;
       }
     } else if (currentStep === 3) {
-      if (!selectedGradeId) {
-        setFormError('Please select the grade you are currently attending (Grade 8 to 12).');
-        return false;
-      }
-    } else if (currentStep === 4) {
       if (selectedSubjectIds.length === 0) {
-        setFormError('Please select at least 1 subject to continue. (CAPS learners typically take 7 subjects in Grades 10–12).');
+        setFormError('Please select at least one subject you want to study.');
         return false;
       }
     }
@@ -136,22 +113,23 @@ export default function OnboardingPage() {
   };
 
   const handleCompleteRegistration = () => {
-    if (!validateStep(5)) return;
+    if (!validateStep(3)) return;
     setIsSubmitting(true);
 
     const school = schools.find((s) => s.id === selectedSchoolId);
     const grade = grades.find((g) => g.id === selectedGradeId);
+    const fullName = `${firstName.trim()} ${lastName.trim()}`;
 
     const newProfile: UserProfile = {
       id: `usr-${Date.now()}`,
       email: email.trim(),
-      full_name: fullName.trim(),
+      full_name: fullName,
       role: 'learner',
       school_id: selectedSchoolId,
-      school_name: school?.name || 'Selected Secondary School',
+      school_name: school?.name || 'Pretoria Boys High School',
       grade_id: selectedGradeId,
-      grade_name: grade?.name || 'Secondary Grade',
-      registration_status: school?.status === 'pending_approval' ? 'pending_approval' : 'active',
+      grade_name: grade?.name || 'Grade 10',
+      registration_status: 'active',
       enrolled_subject_ids: selectedSubjectIds,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -160,7 +138,6 @@ export default function OnboardingPage() {
     AppStore.setCurrentUser(newProfile);
     setUser(newProfile);
 
-    // Redirect directly to the personalized learner dashboard
     setTimeout(() => {
       router.push('/dashboard');
     }, 600);
@@ -171,409 +148,297 @@ export default function OnboardingPage() {
   const chosenSubjects = availableSubjects.filter((s) => selectedSubjectIds.includes(s.id));
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12 sm:px-6">
-      {/* Step Indicator Header */}
-      <div className="mb-10 text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold mb-3">
-          <GraduationCap className="w-4 h-4" />
-          <span>Learner Registration & Onboarding</span>
+    <div className="min-h-screen bg-[#f1f5f2] flex flex-col justify-center items-center py-12 px-4 sm:px-6">
+      {/* Top Brand Logo */}
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white border border-slate-200/80 shadow-2xs mb-3">
+          <div className="w-7 h-7 rounded-lg bg-[#1b382b] text-white flex items-center justify-center font-bold text-xs">
+            <GraduationCap className="w-4 h-4 text-emerald-300" />
+          </div>
+          <span className="font-bold text-slate-900 text-sm tracking-tight">QraStudy LMS</span>
+          <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+            Grades 8–12
+          </span>
         </div>
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-          Join the Digital Secondary School
+
+        <h1 className="text-3xl font-black text-slate-900 tracking-tight">
+          Learner Registration & Onboarding
         </h1>
-        <p className="text-sm text-slate-600 mt-2 max-w-lg mx-auto">
-          Enroll in your school, select your grade level, and choose your official CAPS subjects to configure your personalized learning environment.
+        <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-md mx-auto">
+          Set up your learner profile in 3 simple steps to access approved CAPS textbooks, practice quizzes, and your AI study assistant.
         </p>
 
-        {/* Wizard progress bar */}
-        <div className="flex items-center justify-center gap-2 mt-8">
+        {/* Step Progress Indicators */}
+        <div className="flex items-center justify-center gap-2 sm:gap-3 mt-6">
           {[
-            { num: 1, label: 'Account' },
-            { num: 2, label: 'School' },
-            { num: 3, label: 'Grade' },
-            { num: 4, label: 'Subjects' },
-            { num: 5, label: 'Confirm' },
+            { num: 1, label: 'Name & Info' },
+            { num: 2, label: 'Select Grade' },
+            { num: 3, label: 'Choose Subjects' },
+            { num: 4, label: 'Ready' },
           ].map((s) => (
             <div key={s.num} className="flex items-center">
               <div
-                className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                   step === s.num
-                    ? 'bg-blue-600 text-white ring-4 ring-blue-100'
+                    ? 'bg-[#1b382b] text-white ring-4 ring-emerald-200'
                     : step > s.num
                     ? 'bg-emerald-600 text-white'
-                    : 'bg-slate-200 text-slate-600'
+                    : 'bg-white text-slate-400 border border-slate-200'
                 }`}
               >
                 {step > s.num ? <Check className="w-4 h-4" /> : s.num}
               </div>
-              <span className="hidden sm:inline-block ml-2 text-xs font-medium text-slate-700 mr-2">
+              <span
+                className={`hidden sm:inline-block ml-2 text-xs font-semibold mr-2 ${
+                  step === s.num ? 'text-slate-900' : 'text-slate-400'
+                }`}
+              >
                 {s.label}
               </span>
-              {s.num < 5 && <div className="w-6 sm:w-10 h-0.5 bg-slate-200 mr-2" />}
+              {s.num < 4 && <div className="w-4 sm:w-8 h-0.5 bg-slate-200 mr-2" />}
             </div>
           ))}
         </div>
       </div>
 
-      {/* Main Form Card */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-10">
+      {/* Main Registration Card */}
+      <div className="w-full max-w-2xl bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-10 relative overflow-hidden">
         {formError && (
-          <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3 text-red-700 text-sm">
-            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+          <div className="mb-6 p-4 rounded-2xl bg-red-50 border border-red-200 flex items-start gap-3 text-red-700 text-xs">
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold">Verification Alert</p>
-              <p className="text-xs mt-0.5">{formError}</p>
+              <p className="font-bold">Required Information</p>
+              <p className="mt-0.5">{formError}</p>
             </div>
           </div>
         )}
 
-        {/* STEP 1: ACCOUNT DETAILS */}
+        {/* STEP 1: FIRST & LAST NAME + ACCOUNT DETAILS */}
         {step === 1 && (
           <div className="space-y-6 animate-in fade-in">
             <div className="border-b border-slate-100 pb-4">
               <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                <User className="w-5 h-5 text-blue-600" />
-                Step 1: Learner Account Details
+                <User className="w-5 h-5 text-emerald-700" />
+                Step 1: What is your name?
               </h2>
               <p className="text-xs text-slate-500 mt-1">
-                Enter your official student credentials. Real names are required for academic records and certificate issuance.
+                Enter your first and last name as recorded at your school.
               </p>
             </div>
 
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Full Legal Name (as on Identity Document / Birth Certificate) *
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  First Name *
                 </label>
                 <input
                   type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="e.g. Thabo Nkosi"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="e.g. Thabo"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#1b382b] focus:bg-white transition-all"
+                  required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Email Address (School-issued or Personal) *
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Last Name *
+                </label>
+                <input
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="e.g. Nkosi"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#1b382b] focus:bg-white transition-all"
+                  required
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Email Address *
                 </label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="e.g. thabo.nkosi@student.school.za"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#1b382b] focus:bg-white transition-all"
+                  required
                 />
-                <p className="text-[11px] text-slate-400 mt-1">
-                  We use this for assessment notifications and document access.
-                </p>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Account Password *
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Select Your School *
                 </label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Minimum 6 characters"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+                <select
+                  value={selectedSchoolId}
+                  onChange={(e) => setSelectedSchoolId(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#1b382b] focus:bg-white transition-all"
+                >
+                  {schools.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name} ({s.province})
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>
         )}
 
-        {/* STEP 2: SCHOOL SELECTION */}
+        {/* STEP 2: GRADE SELECTION (GRADES 8 TO 12) */}
         {step === 2 && (
           <div className="space-y-6 animate-in fade-in">
             <div className="border-b border-slate-100 pb-4">
               <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                <SchoolIcon className="w-5 h-5 text-blue-600" />
-                Step 2: Select Your Registered Secondary School
+                <GraduationCap className="w-5 h-5 text-emerald-700" />
+                Step 2: Which grade are you studying?
               </h2>
               <p className="text-xs text-slate-500 mt-1">
-                Choose the school you are enrolled in. Resources and assessments are verified per school.
+                Choose your current secondary school grade level (Grades 8–12).
               </p>
             </div>
 
-            <div className="space-y-3">
-              {schools.map((s) => (
-                <div
-                  key={s.id}
-                  onClick={() => setSelectedSchoolId(s.id)}
-                  className={`p-4 rounded-xl border cursor-pointer transition-all flex items-start justify-between ${
-                    selectedSchoolId === s.id
-                      ? 'border-blue-600 bg-blue-50/60 ring-2 ring-blue-100'
-                      : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-                  }`}
-                >
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-semibold text-sm text-slate-900">{s.name}</h4>
-                      {s.ems_code && (
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
-                          {s.ems_code}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-slate-500 mt-1">
-                      {s.province} {s.district ? `• ${s.district}` : ''}
-                    </p>
-                    {s.status === 'pending_approval' && (
-                      <span className="inline-block mt-2 text-[10px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-                        Pending School Administration Verification
-                      </span>
-                    )}
-                  </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {grades.map((g) => {
+                const isSelected = selectedGradeId === g.id;
+                return (
                   <div
-                    className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5 ${
-                      selectedSchoolId === s.id
-                        ? 'border-blue-600 bg-blue-600 text-white'
-                        : 'border-slate-300'
+                    key={g.id}
+                    onClick={() => setSelectedGradeId(g.id)}
+                    className={`p-5 rounded-2xl border cursor-pointer transition-all flex flex-col justify-between ${
+                      isSelected
+                        ? 'border-[#1b382b] bg-[#1b382b]/5 ring-2 ring-[#1b382b]'
+                        : 'border-slate-200 hover:border-slate-300 bg-slate-50/50 hover:bg-slate-50'
                     }`}
                   >
-                    {selectedSchoolId === s.id && <Check className="w-3.5 h-3.5" />}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* School Request/Registration option */}
-            <div className="pt-2">
-              <button
-                type="button"
-                onClick={() => setShowAddSchool(!showAddSchool)}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-800"
-              >
-                <PlusCircle className="w-4 h-4" />
-                <span>Can&apos;t find your school? Register a new school</span>
-              </button>
-
-              {showAddSchool && (
-                <form
-                  onSubmit={handleAddNewSchool}
-                  className="mt-4 p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3"
-                >
-                  <h4 className="text-xs font-bold text-slate-900">Register New Secondary School</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-[11px] font-semibold text-slate-700 block mb-1">
-                        School Name *
-                      </label>
-                      <input
-                        type="text"
-                        value={newSchoolName}
-                        onChange={(e) => setNewSchoolName(e.target.value)}
-                        placeholder="e.g. Lawson Secondary School"
-                        className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[11px] font-semibold text-slate-700 block mb-1">
-                        Province *
-                      </label>
-                      <select
-                        value={newSchoolProvince}
-                        onChange={(e) => setNewSchoolProvince(e.target.value)}
-                        className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="Gauteng">Gauteng</option>
-                        <option value="Western Cape">Western Cape</option>
-                        <option value="KwaZulu-Natal">KwaZulu-Natal</option>
-                        <option value="Eastern Cape">Eastern Cape</option>
-                        <option value="Free State">Free State</option>
-                        <option value="Limpopo">Limpopo</option>
-                        <option value="Mpumalanga">Mpumalanga</option>
-                        <option value="North West">North West</option>
-                        <option value="Northern Cape">Northern Cape</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-[11px] font-semibold text-slate-700 block mb-1">
-                      Official School Administration Email *
-                    </label>
-                    <input
-                      type="email"
-                      value={newSchoolEmail}
-                      onChange={(e) => setNewSchoolEmail(e.target.value)}
-                      placeholder="e.g. admin@school.gov.za"
-                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      required
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 transition-colors"
-                  >
-                    Submit School for Approval
-                  </button>
-                </form>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* STEP 3: GRADE SELECTION */}
-        {step === 3 && (
-          <div className="space-y-6 animate-in fade-in">
-            <div className="border-b border-slate-100 pb-4">
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                <GraduationCap className="w-5 h-5 text-blue-600" />
-                Step 3: Select Your Grade (Grades 8–12)
-              </h2>
-              <p className="text-xs text-slate-500 mt-1">
-                Curriculum standards and subject offerings are tailored to Senior Phase (Grades 8–9) and Further Education & Training (Grades 10–12).
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-              {grades.map((g) => (
-                <div
-                  key={g.id}
-                  onClick={() => setSelectedGradeId(g.id)}
-                  className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
-                    selectedGradeId === g.id
-                      ? 'border-blue-600 bg-blue-50/60 ring-2 ring-blue-100'
-                      : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="font-bold text-base text-slate-900">{g.name}</span>
-                    <div
-                      className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
-                        selectedGradeId === g.id
-                          ? 'border-blue-600 bg-blue-600 text-white'
-                          : 'border-slate-300'
-                      }`}
-                    >
-                      {selectedGradeId === g.id && <Check className="w-3.5 h-3.5" />}
-                    </div>
-                  </div>
-                  <div className="text-xs text-slate-500">
-                    <span className="inline-block px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 font-medium">
-                      {g.phase}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* STEP 4: SUBJECT SELECTION */}
-        {step === 4 && (
-          <div className="space-y-6 animate-in fade-in">
-            <div className="border-b border-slate-100 pb-4">
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-blue-600" />
-                Step 4: Select Your Registered Subjects
-              </h2>
-              <p className="text-xs text-slate-500 mt-1">
-                Displaying official CAPS subjects for{' '}
-                <strong className="text-slate-700">{selectedGrade?.name}</strong> at{' '}
-                <strong className="text-slate-700">{selectedSchool?.name}</strong>.
-              </p>
-            </div>
-
-            {availableSubjects.length === 0 ? (
-              <div className="p-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                <p className="text-xs text-slate-500">
-                  No subjects configured for this grade level yet.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {availableSubjects.map((sub) => {
-                  const isSelected = selectedSubjectIds.includes(sub.id);
-                  return (
-                    <div
-                      key={sub.id}
-                      onClick={() => handleToggleSubject(sub.id)}
-                      className={`p-4 rounded-xl border cursor-pointer transition-all flex items-start justify-between ${
-                        isSelected
-                          ? 'border-blue-600 bg-blue-50/60 ring-2 ring-blue-100'
-                          : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-                      }`}
-                    >
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-semibold text-sm text-slate-900">{sub.name}</h4>
-                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
-                            {sub.code}
-                          </span>
-                        </div>
-                        <p className="text-xs text-slate-500 mt-1">{sub.description}</p>
-                        <span className="inline-block mt-2 text-[10px] text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 font-medium">
-                          {sub.category}
-                        </span>
-                      </div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="font-black text-base text-slate-900">{g.name}</span>
                       <div
-                        className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5 ${
+                        className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
                           isSelected
-                            ? 'border-blue-600 bg-blue-600 text-white'
+                            ? 'border-[#1b382b] bg-[#1b382b] text-white'
                             : 'border-slate-300'
                         }`}
                       >
                         {isSelected && <Check className="w-3.5 h-3.5" />}
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
+                    <span className="inline-block text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/60 w-fit">
+                      {g.phase}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 
-        {/* STEP 5: CONFIRMATION */}
-        {step === 5 && (
+        {/* STEP 3: SUBJECT SELECTION */}
+        {step === 3 && (
           <div className="space-y-6 animate-in fade-in">
             <div className="border-b border-slate-100 pb-4">
               <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-emerald-600" />
-                Step 5: Confirm Onboarding Information
+                <BookOpen className="w-5 h-5 text-emerald-700" />
+                Step 3: Which subjects do you want to study?
               </h2>
               <p className="text-xs text-slate-500 mt-1">
-                Please verify your details. After confirmation, your account will be activated and your dashboard configured.
+                Select your subjects for <strong className="text-slate-800">{selectedGrade?.name}</strong>. You can choose all that apply.
               </p>
             </div>
 
-            <div className="bg-slate-50 rounded-xl p-5 border border-slate-200 space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div className="space-y-2.5 max-h-[380px] overflow-y-auto pr-1">
+              {availableSubjects.map((sub) => {
+                const isSelected = selectedSubjectIds.includes(sub.id);
+                return (
+                  <div
+                    key={sub.id}
+                    onClick={() => handleToggleSubject(sub.id)}
+                    className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-start justify-between ${
+                      isSelected
+                        ? 'border-[#1b382b] bg-[#1b382b]/5 ring-2 ring-[#1b382b]'
+                        : 'border-slate-200 hover:border-slate-300 bg-slate-50/50 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-bold text-sm text-slate-900">{sub.name}</h4>
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white text-slate-600 border border-slate-200 font-semibold">
+                          {sub.code}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-1">{sub.description}</p>
+                      <span className="inline-block mt-2 text-[10px] text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 font-semibold">
+                        {sub.category}
+                      </span>
+                    </div>
+
+                    <div
+                      className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5 ${
+                        isSelected
+                          ? 'border-[#1b382b] bg-[#1b382b] text-white'
+                          : 'border-slate-300'
+                      }`}
+                    >
+                      {isSelected && <Check className="w-3.5 h-3.5" />}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* STEP 4: CONFIRMATION & ACCESS */}
+        {step === 4 && (
+          <div className="space-y-6 animate-in fade-in">
+            <div className="border-b border-slate-100 pb-4">
+              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-emerald-700" />
+                Step 4: Confirm Your Registration
+              </h2>
+              <p className="text-xs text-slate-500 mt-1">
+                Verify your details. Everything is configured and ready for your dashboard.
+              </p>
+            </div>
+
+            <div className="bg-[#f1f5f2] rounded-2xl p-5 border border-slate-200/80 space-y-4 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <span className="text-slate-400 block mb-0.5">Full Legal Name:</span>
-                  <span className="font-semibold text-slate-900 text-sm">{fullName}</span>
+                  <span className="text-slate-400 block mb-0.5">Learner Name:</span>
+                  <span className="font-bold text-slate-900 text-sm">
+                    {firstName} {lastName}
+                  </span>
                 </div>
                 <div>
                   <span className="text-slate-400 block mb-0.5">Email Address:</span>
-                  <span className="font-semibold text-slate-900 text-sm">{email}</span>
+                  <span className="font-bold text-slate-900 text-sm">{email}</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block mb-0.5">Enrolled School:</span>
-                  <span className="font-semibold text-slate-900 text-sm">{selectedSchool?.name}</span>
+                  <span className="text-slate-400 block mb-0.5">Selected School:</span>
+                  <span className="font-bold text-slate-900 text-sm">{selectedSchool?.name}</span>
                 </div>
                 <div>
                   <span className="text-slate-400 block mb-0.5">Grade Level:</span>
-                  <span className="font-semibold text-slate-900 text-sm">{selectedGrade?.name}</span>
+                  <span className="font-bold text-slate-900 text-sm">{selectedGrade?.name}</span>
                 </div>
               </div>
 
               <div className="pt-3 border-t border-slate-200">
-                <span className="text-slate-500 text-xs font-semibold block mb-2">
+                <span className="text-slate-500 font-bold block mb-2">
                   Enrolled Subjects ({chosenSubjects.length}):
                 </span>
                 <div className="flex flex-wrap gap-2">
-                  {chosenSubjects.map((sub) => (
+                  {chosenSubjects.map((s) => (
                     <span
-                      key={sub.id}
-                      className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 shadow-2xs"
+                      key={s.id}
+                      className="px-3 py-1 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 shadow-2xs flex items-center gap-1.5"
                     >
-                      <span className="w-2 h-2 rounded-full bg-blue-600" />
-                      {sub.name} ({sub.code})
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+                      {s.name} ({s.code})
                     </span>
                   ))}
                 </div>
@@ -589,7 +454,7 @@ export default function OnboardingPage() {
               type="button"
               onClick={handleBack}
               disabled={isSubmitting}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors"
             >
               <ChevronLeft className="w-4 h-4" />
               <span>Back</span>
@@ -598,11 +463,11 @@ export default function OnboardingPage() {
             <div />
           )}
 
-          {step < 5 ? (
+          {step < 4 ? (
             <button
               type="button"
               onClick={handleNext}
-              className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-colors shadow-xs"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#1b382b] hover:bg-[#244b3a] text-white text-xs font-bold transition-all shadow-sm"
             >
               <span>Continue</span>
               <ChevronRight className="w-4 h-4" />
@@ -612,14 +477,14 @@ export default function OnboardingPage() {
               type="button"
               onClick={handleCompleteRegistration}
               disabled={isSubmitting}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 transition-colors shadow-xs disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-7 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-md disabled:opacity-50"
             >
               {isSubmitting ? (
-                <span>Configuring Dashboard...</span>
+                <span>Activating Profile...</span>
               ) : (
                 <>
                   <Check className="w-4 h-4" />
-                  <span>Confirm & Access Dashboard</span>
+                  <span>Confirm & Enter Dashboard</span>
                 </>
               )}
             </button>
@@ -629,4 +494,3 @@ export default function OnboardingPage() {
     </div>
   );
 }
-

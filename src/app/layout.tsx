@@ -1,11 +1,10 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { AuthProvider } from '@/components/auth/AuthContext';
-import { Navbar } from '@/components/layout/Navbar';
-import { Footer } from '@/components/layout/Footer';
+import { AppShell } from '@/components/layout/AppShell';
 
 export const metadata: Metadata = {
-  title: 'Digital Secondary School LMS | Grades 8–12',
+  title: 'QraStudy | Digital Secondary School LMS (Grades 8–12)',
   description:
     'Comprehensive Learning Management System with integrated CAPS curriculum, interactive digital reader, highlight-to-AI study assistant, and real academic tracking.',
 };
@@ -17,11 +16,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans antialiased">
+      <body className="min-h-screen bg-[#f1f5f2] text-slate-900 font-sans antialiased">
         <AuthProvider>
-          <Navbar />
-          <main className="flex-1 w-full">{children}</main>
-          <Footer />
+          <AppShell>{children}</AppShell>
         </AuthProvider>
       </body>
     </html>
