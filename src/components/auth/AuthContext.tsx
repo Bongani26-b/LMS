@@ -28,11 +28,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Check if there is an existing user in storage
-    let current = AppStore.getCurrentUser();
-    if (!current) {
-      // Default to Learner
-      current = AppStore.switchRole('learner');
-    }
+    const current = AppStore.getCurrentUser();
     setUserState(current);
     setIsLoading(false);
   }, []);

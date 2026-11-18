@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard,
   BookOpen,
@@ -22,7 +22,14 @@ import { Badge } from '@/components/ui/badge';
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    router.push('/login');
+    router.refresh();
+  };
 
   // Pure student navigation links - no teacher/mentor switcher
   const navItems = [
@@ -144,13 +151,14 @@ export function AppSidebar() {
             </div>
           </Link>
 
-          <Link
-            href="/onboarding"
-            title="Log Out / Re-register"
+          <button
+            type="button"
+            onClick={handleLogout}
+            title="Log Out"
             className="p-2 rounded-xl text-emerald-300 hover:text-white hover:bg-[#264c3c] transition-colors"
           >
             <LogOut className="w-4 h-4" />
-          </Link>
+          </button>
         </div>
 
         {/* Decorative watermark */}

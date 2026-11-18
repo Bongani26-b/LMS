@@ -1,16 +1,33 @@
 'use client';
 
-import React from 'react';
-import { usePathname } from 'next/navigation';
+import React, { useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuth } from '../auth/AuthContext';
 import { AppSidebar } from './AppSidebar';
 import { TopHeader } from './TopHeader';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isOnboarding = pathname === '/onboarding';
+  const router = useRouter();
+  const { user, isLoading } = useAuth();
+  const isPublicPage = pathname === '/login' || pathname === '/onboarding';
 
-  if (isOnboarding) {
+  useEffect(() => {
+    if (!isLoading && !user && !isPublicPage) {
+      router.replace('/login');
+    }
+  }, [isLoading, user, isPublicPage, router]);
+
+  if (isPublicPage) {
     return <main className="min-h-screen bg-[#f1f5f2]">{children}</main>;
+  }
+
+  if (isLoading) {
+    return <main className="min-h-screen bg-[#f1f5f2]" />;
+  }
+
+  if (!user) {
+    return <main className="min-h-screen bg-[#f1f5f2]" />;
   }
 
   return (

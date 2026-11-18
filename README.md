@@ -2,6 +2,10 @@
 
 A comprehensive, scalable, role-based Learning Management System engineered specifically for secondary schools, initialized with the **South African Curriculum and Assessment Policy Statement (CAPS)** standards for **Senior Phase (Grades 8–9)** and **Further Education and Training (FET Phase, Grades 10–12)**.
 
+Login details
+Email: learner@qrastudy.com
+Password: Password123
+
 ---
 
 ## 1. Product Capabilities & Modules
